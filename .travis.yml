@@ -1,3 +1,15 @@
 language: go
 go:
 - '1.8'
+before_deploy:
+- GOOS=linux go build
+- zip handler.zip ./go-lambda-mqtt
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: bU9iVVZtL/U+t134PSy4eWAI5k4jzY4eTCniuaYllQmMgyrjlLT/pcVRCLm2hnYFv2FZPWjBnjRPl6mLWjeNCaLCeUxGsjDmn8iyg2j3/OQZUhzJrcBoCWB3KFrGWRqkxdfh6O5FoyH8tHTS9NRJpOewuyW+kL55pADDHdNzwzvOtE1Gv4XhC5qE3BCJgSiqGx2T6knB5u1+slwJS80rLZ7ZGWAjub1QtIC04KGkwcnBgO6QtmSQIOlb68ZJsy1OC3YU+AB/ppOZkzrwXC583rmVaSeqebTUO8qL6q6bOwIXBSsp1oiixFJMzlXC3QVjECa88YKkjTQioCDuo+/hDbk6NmhVcGwYLX1qvvVb/ZCH97zeLNkO842yCYrnDh9gTZw5Vo3eEQSGnxD/U3RHjOQYvDan5L3OBy7yw9XzWI6Pm7WglbAXLnHZj3nhELpEM2Sxk9hgDCfbKVIdxcDUAQ5OVdV1LGzvJWbV6ovpGNtyFhtYEh4gUzT6NElxrIt2d56RalqleQIpjQxJDkBa7biA353r7DNL7+CvBvR8Skxb82dvF1FhDT+72yI7dAyvCXSZ65M125TIEj1O3HngrAl5GkMa1jneIh8j6QtvigRVG+xh714/BWZhgdMevB2G3hgPrBknfzVeKqnm0tBJHw+QVKSXJ4Z9Dz1mt5WJcMI=
+  file: 
+    - handler.zip
+  on:
+    repo: orktes/go-lambda-mqtt
