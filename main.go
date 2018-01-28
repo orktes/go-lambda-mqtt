@@ -17,7 +17,6 @@ const timeout = time.Second * 5
 
 var errorTimeout = errors.New("MQTT response not received during specified time frame")
 var outTopic string = os.Getenv("MQTT_OUT_TOPIC")
-
 var client mqtt.Client
 
 func handler(in json.RawMessage) (out json.RawMessage, err error) {
@@ -25,8 +24,18 @@ func handler(in json.RawMessage) (out json.RawMessage, err error) {
 		panic("Output topic should be defined")
 	}
 
+	fmt.Printf("[REQUEST] %s\n", string(in))
+	defer func() {
+		if err != nil {
+			fmt.Printf("[RESPONSE] Error: %s\n", err)
+			return
+		}
+		fmt.Printf("[RESPONSE] %s\n", string(out))
+	}()
+
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
-		return nil, token.Error()
+		err = token.Error()
+		return
 	}
 	defer client.Disconnect(0)
 
@@ -42,7 +51,8 @@ func handler(in json.RawMessage) (out json.RawMessage, err error) {
 	})
 
 	if token.Wait() && token.Error() != nil {
-		return nil, token.Error()
+		err = token.Error()
+		return
 	}
 
 	req := structs.Request{
@@ -57,7 +67,8 @@ func handler(in json.RawMessage) (out json.RawMessage, err error) {
 	}
 
 	if token := client.Publish(outTopic, 1, false, b); token.Wait() && token.Error() != nil {
-		return nil, token.Error()
+		err = token.Error()
+		return
 	}
 
 	select {
@@ -68,7 +79,8 @@ func handler(in json.RawMessage) (out json.RawMessage, err error) {
 	}
 
 	if token := client.Unsubscribe(inTopic); token.Wait() && token.Error() != nil {
-		return nil, token.Error()
+		err = token.Error()
+		return
 	}
 
 	return
