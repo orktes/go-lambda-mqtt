@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/google/uuid"
+	"github.com/orktes/go-lambda-mqtt/structs"
 )
 
 const timeout = time.Second * 5
@@ -19,7 +20,11 @@ var outTopic string = os.Getenv("MQTT_OUT_TOPIC")
 
 var client mqtt.Client
 
-func handler(in interface{}) (out interface{}, err error) {
+func handler(in json.RawMessage) (out json.RawMessage, err error) {
+	if outTopic == "" {
+		panic("Output topic should be defined")
+	}
+
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
 		return nil, token.Error()
 	}
@@ -27,30 +32,23 @@ func handler(in interface{}) (out interface{}, err error) {
 
 	reqID := uuid.New()
 
-	ch := make(chan interface{})
+	ch := make(chan json.RawMessage)
 	errChan := make(chan error)
 
 	inTopic := fmt.Sprintf("%s/response/%s", outTopic, reqID)
 	token := client.Subscribe(inTopic, 2, func(client mqtt.Client, message mqtt.Message) {
 		payload := message.Payload()
-
-		var res interface{}
-		if err := json.Unmarshal(payload, &res); err != nil {
-			errChan <- err
-			return
-		}
-
-		ch <- res
+		ch <- payload
 	})
 
 	if token.Wait() && token.Error() != nil {
 		return nil, token.Error()
 	}
 
-	req := map[string]interface{}{
-		"id":             reqID.String(),
-		"response_topic": inTopic,
-		"payload":        in,
+	req := structs.Request{
+		ID:      reqID.String(),
+		Topic:   inTopic,
+		Payload: in,
 	}
 
 	b, err := json.Marshal(req)
@@ -69,6 +67,10 @@ func handler(in interface{}) (out interface{}, err error) {
 		err = errorTimeout
 	}
 
+	if token := client.Unsubscribe(inTopic); token.Wait() && token.Error() != nil {
+		return nil, token.Error()
+	}
+
 	return
 }
 
@@ -77,14 +79,6 @@ func init() {
 	broker := os.Getenv("MQTT_BROKER")
 	username := os.Getenv("MQTT_USERNAME")
 	password := os.Getenv("MQTT_PASSWORD")
-
-	if outTopic == "" {
-		panic("Output topic should be defined")
-	}
-
-	if broker == "" {
-		panic("MQTT broker should be defined")
-	}
 
 	opts := mqtt.NewClientOptions()
 	opts = opts.AddBroker(broker)
