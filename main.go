@@ -18,6 +18,7 @@ const timeout = time.Second * 5
 var errorTimeout = errors.New("MQTT response not received during specified time frame")
 var outTopic string = os.Getenv("MQTT_OUT_TOPIC")
 var client mqtt.Client
+var connected bool
 
 func handler(in json.RawMessage) (out json.RawMessage, err error) {
 	if outTopic == "" {
@@ -33,11 +34,13 @@ func handler(in json.RawMessage) (out json.RawMessage, err error) {
 		fmt.Printf("[RESPONSE] %s\n", string(out))
 	}()
 
-	if token := client.Connect(); token.Wait() && token.Error() != nil {
-		err = token.Error()
-		return
+	if !connected {
+		if token := client.Connect(); token.Wait() && token.Error() != nil {
+			err = token.Error()
+			return
+		}
+		connected = true
 	}
-	defer client.Disconnect(0)
 
 	reqID := uuid.New()
 
@@ -45,6 +48,7 @@ func handler(in json.RawMessage) (out json.RawMessage, err error) {
 	errChan := make(chan error)
 
 	inTopic := fmt.Sprintf("%s/response/%s", outTopic, reqID)
+	fmt.Printf("[MQTT-SUBSCRIBE] %s\n", inTopic)
 	token := client.Subscribe(inTopic, 2, func(client mqtt.Client, message mqtt.Message) {
 		payload := message.Payload()
 		ch <- payload
@@ -66,6 +70,7 @@ func handler(in json.RawMessage) (out json.RawMessage, err error) {
 		return nil, err
 	}
 
+	fmt.Printf("[MQTT-PUBLISH] %s\n", outTopic)
 	if token := client.Publish(outTopic, 1, false, b); token.Wait() && token.Error() != nil {
 		err = token.Error()
 		return
