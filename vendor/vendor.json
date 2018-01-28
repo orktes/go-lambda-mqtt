@@ -1,0 +1,55 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "uI0hFuHj5Amsq+6TzWcczBIdWZY=",
+			"path": "github.com/aws/aws-lambda-go/lambda",
+			"revision": "5fea2b254568d4043f23d27471ae265cd33d3530",
+			"revisionTime": "2018-01-26T03:40:30Z"
+		},
+		{
+			"checksumSHA1": "d4ehJWLS4YsqFG825pgwdvKDB6A=",
+			"path": "github.com/aws/aws-lambda-go/lambda/messages",
+			"revision": "5fea2b254568d4043f23d27471ae265cd33d3530",
+			"revisionTime": "2018-01-26T03:40:30Z"
+		},
+		{
+			"checksumSHA1": "f9MhOwQHveaPVWO6trwfqHa+W0M=",
+			"path": "github.com/aws/aws-lambda-go/lambdacontext",
+			"revision": "5fea2b254568d4043f23d27471ae265cd33d3530",
+			"revisionTime": "2018-01-26T03:40:30Z"
+		},
+		{
+			"checksumSHA1": "t54h2PELlQvbf0+eE0ZVZVr6UtY=",
+			"path": "github.com/eclipse/paho.mqtt.golang",
+			"revision": "bab87cde322cf9aec420645d1e9801d0f216f791",
+			"revisionTime": "2018-01-19T12:21:19Z"
+		},
+		{
+			"checksumSHA1": "ITCnG3uKUnqNXrnnulKokjQKfN4=",
+			"path": "github.com/eclipse/paho.mqtt.golang/packets",
+			"revision": "bab87cde322cf9aec420645d1e9801d0f216f791",
+			"revisionTime": "2018-01-19T12:21:19Z"
+		},
+		{
+			"checksumSHA1": "uFNLkTxk8BkHTk0Jcub2lj2BX4M=",
+			"path": "github.com/google/uuid",
+			"revision": "dec09d789f3dba190787f8b4454c7d3c936fed9e",
+			"revisionTime": "2017-11-29T19:10:14Z"
+		},
+		{
+			"checksumSHA1": "fjMK2G5arnjllpoeBYeyf9Y2Iok=",
+			"path": "golang.org/x/net/proxy",
+			"revision": "5602c733f70afc6dcec6766be0d5034d4c4f14de",
+			"revisionTime": "2017-04-13T17:15:43Z"
+		},
+		{
+			"checksumSHA1": "7EZyXN0EmZLgGxZxK01IJua4c8o=",
+			"path": "golang.org/x/net/websocket",
+			"revision": "5602c733f70afc6dcec6766be0d5034d4c4f14de",
+			"revisionTime": "2017-04-13T17:15:43Z"
+		}
+	],
+	"rootPath": "github.com/orktes/go-lambda-mqtt"
+}
