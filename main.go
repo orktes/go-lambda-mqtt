@@ -58,6 +58,7 @@ func handler(in json.RawMessage) (out json.RawMessage, err error) {
 		err = token.Error()
 		return
 	}
+	defer client.Unsubscribe(inTopic)
 
 	req := structs.Request{
 		ID:      reqID.String(),
@@ -81,11 +82,6 @@ func handler(in json.RawMessage) (out json.RawMessage, err error) {
 	case out = <-ch:
 	case <-time.After(timeout):
 		err = errorTimeout
-	}
-
-	if token := client.Unsubscribe(inTopic); token.Wait() && token.Error() != nil {
-		err = token.Error()
-		return
 	}
 
 	return
