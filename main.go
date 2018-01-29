@@ -18,7 +18,6 @@ const timeout = time.Second * 5
 var errorTimeout = errors.New("MQTT response not received during specified time frame")
 var outTopic string = os.Getenv("MQTT_OUT_TOPIC")
 var client mqtt.Client
-var connected bool
 
 func handler(in json.RawMessage) (out json.RawMessage, err error) {
 	if outTopic == "" {
@@ -34,12 +33,12 @@ func handler(in json.RawMessage) (out json.RawMessage, err error) {
 		fmt.Printf("[RESPONSE] %s\n", string(out))
 	}()
 
-	if !connected {
+	if !client.IsConnected() {
 		if token := client.Connect(); token.Wait() && token.Error() != nil {
 			err = token.Error()
-			return
+			// Just panic
+			panic(err)
 		}
-		connected = true
 	}
 
 	reqID := uuid.New()
