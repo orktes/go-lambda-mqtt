@@ -17,7 +17,7 @@ const timeout = time.Second * 5
 
 var errorTimeout = errors.New("MQTT response not received during specified time frame")
 var outTopic string = os.Getenv("MQTT_OUT_TOPIC")
-var client mqtt.Client
+var opts *mqtt.ClientOptions
 
 func handler(in json.RawMessage) (out json.RawMessage, err error) {
 	if outTopic == "" {
@@ -33,13 +33,12 @@ func handler(in json.RawMessage) (out json.RawMessage, err error) {
 		fmt.Printf("[RESPONSE] %s\n", string(out))
 	}()
 
-	if !client.IsConnected() {
-		if token := client.Connect(); token.Wait() && token.Error() != nil {
-			err = token.Error()
-			// Just panic
-			panic(err)
-		}
+	client := mqtt.NewClient(opts)
+	if token := client.Connect(); token.Wait() && token.Error() != nil {
+		err = token.Error()
+		return
 	}
+	defer client.Disconnect(0)
 
 	reqID := uuid.New()
 
@@ -92,7 +91,7 @@ func init() {
 	username := os.Getenv("MQTT_USERNAME")
 	password := os.Getenv("MQTT_PASSWORD")
 
-	opts := mqtt.NewClientOptions()
+	opts = mqtt.NewClientOptions()
 	opts = opts.AddBroker(broker)
 	if clientID != "" {
 		opts = opts.SetClientID(clientID)
@@ -103,7 +102,6 @@ func init() {
 	if password != "" {
 		opts = opts.SetPassword(password)
 	}
-	client = mqtt.NewClient(opts)
 }
 
 func main() {
