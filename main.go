@@ -19,6 +19,10 @@ var errorTimeout = errors.New("MQTT response not received during specified time 
 var outTopic string = os.Getenv("MQTT_OUT_TOPIC")
 var opts *mqtt.ClientOptions
 
+var newClient = func(opts *mqtt.ClientOptions) mqtt.Client {
+	return mqtt.NewClient(opts)
+}
+
 func handler(in json.RawMessage) (out json.RawMessage, err error) {
 	if outTopic == "" {
 		panic("Output topic should be defined")
@@ -33,7 +37,7 @@ func handler(in json.RawMessage) (out json.RawMessage, err error) {
 		fmt.Printf("[RESPONSE] %s\n", string(out))
 	}()
 
-	client := mqtt.NewClient(opts)
+	client := newClient(opts)
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
 		err = token.Error()
 		return

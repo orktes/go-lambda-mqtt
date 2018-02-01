@@ -18,7 +18,9 @@ func TestHandler(t *testing.T) {
 		topic   string
 		payload []byte
 	})
-	client = &mockClient{subs, pubs}
+	newClient = func(opts *mqtt.ClientOptions) mqtt.Client {
+		return &mockClient{subs, pubs}
+	}
 	outTopic = "foo"
 
 	res := make(chan []byte)
